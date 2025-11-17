@@ -1,0 +1,40 @@
+{
+  "org": {
+    "ORG_NAME": "Escuela de Idiomas del Ejército - Filial Santa Cruz",
+    "CITY": "Santa Cruz",
+    "ADDRESS": "FINAL Calle Taperas 2do. Anillo, detrás del INE 591, Santa Cruz de la Sierra, Bolivia",
+    "GOOGLE_MAPS_LINK": "https://maps.app.goo.gl/TRStYJHnt6U5urkr6",
+    "OPENING_HOURS": "Lun–Vie 08:00–17:00",
+    "PRICES": "Matricula Bs 230 una vez al año; Mensualidad Bs 330; Material Bs 70",
+    "PROMOTION": "Matricula Bs 200 una vez al año; Mensualidad Bs 230; Material Bs 70",
+    "PAYMENT_METHODS": "Efectivo, Transferencia, QR"
+  },
+  "catalog": {
+    "COURSES": ["Inglés", "Chino", "Francés", "Portugués", "Quechua", "Aymara"],
+    "LEVELS": ["A1", "A2", "B1", "B2", "C1", "C2"],
+    "ENROLL_STEPS": [
+      "Enviar foto de CI",
+      "Llenar formulario digital",
+      "Pago (QR o caja)",
+      "Confirmación de aula y horario"
+    ]
+  },
+  "faq": {
+    "horarios": "🕘 Horarios: Lun–Vie mañana 08:30–11:00, tarde 14:30–17:00, noche 19:00–21:30. ¿Deseas reservar un cupo?",
+    "cursos": "📚 Cursos: Inglés, Chino, Francés, Portugués, Quechua, Aymara.\n🎯 Niveles: A1, A2, B1, B2, C1, C2.",
+    "precios": "💵 Precios: Matricula Bs 230/año; Mensualidad Bs 330; Material Bs 70.\n🎖️ Promoción: Matricula Bs 200/año; Mensualidad Bs 230; Material Bs 70.",
+    "inscripciones": "📝 Inscripciones:\n- Enviar foto de CI\n- Llenar formulario digital\n- Pago (QR o caja)\n- Confirmación de aula y horario\n\n📝 Para inscribirte te pediré CI, nombre, idioma, nivel y horario. ¿Iniciamos?",
+    "ubicacion": "📍 Dirección: FINAL Calle Taperas 2do. Anillo, detrás del INE 591, Santa Cruz de la Sierra.\n📌 Mapa: https://maps.app.goo.gl/rKSnmHwQBLfJBiYV9",
+    "contacto": "☎️ +591 78024823 / +591 67601808\n✉️ idiomas.scz@emi.edu.bo\n🎵 TikTok: https://tiktok.com/@escuela.de.idiomasc1",
+    "pagos": "💳 Medios de pago: Efectivo, Transferencia, QR"
+  },
+  "rules": {
+    "horarios": ["horario", "hora", "atienden", "abren", "cierran", "atencion", "atención"],
+    "cursos": ["curso", "cursos", "idioma", "clase", "clases", "nivel", "niveles"],
+    "precios": ["precio", "precios", "cuesta", "tarifa", "vale", "mensualidad", "inscripcion", "inscripción", "material"],
+    "inscripciones": ["inscribir", "inscripcion", "inscripción", "requisito", "requisitos", "postular", "matricula", "matrícula"],
+    "ubicacion": ["ubicacion", "ubicación", "direccion", "dirección", "donde", "dónde", "mapa", "llegar"],
+    "contacto": ["contacto", "telefono", "teléfono", "email", "correo", "tiktok", "redes"],
+    "pagos": ["pago", "pagos", "transferencia", "qr", "efectivo", "metodo", "método", "banco", "cuenta"]
+  }
+}
