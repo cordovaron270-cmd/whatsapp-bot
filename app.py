@@ -157,17 +157,91 @@ def send_whatsapp_text(to, message):
 # ============================================================
 #                 6) WEBHOOK - VERIFICACIÓN
 # ============================================================
+
 @app.get("/webhook", response_class=PlainTextResponse)
+async def verify_webhook(request: Request):
+    """
+    Verificación para WhatsApp Cloud API.
+    WhatsApp envía hub.mode, hub.verify_token y hub.challenge.
+    Si el token coincide, respondemos el challenge.
+    """
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        return PlainTextResponse(challenge or "")
+
+    raise HTTPException(status_code=403, detail="Token incorrecto")
+
+
+# ============================================================
+#     FUNCIÓN AUXILIAR – Enviar mensaje por WhatsApp API
+# ============================================================
+
+def send_whatsapp_message(to: str, message: str):
+    """
+    Envía un mensaje simple de texto por WhatsApp Cloud API.
+    """
+    url = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "text",
+        "text": {"body": message}
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    print("➡️ Respuesta de envío:", response.text)
+
+
+# ============================================================
+#     FUNCIÓN AUXILIAR – Responder según intención detectada
+# ============================================================
+
+def handle_intention(intent: str, text: str, phone: str):
+    """
+    Procesa la intención y devuelve una respuesta lista para enviar.
+    """
+    intent = intent.lower().strip()
+
+    if intent == "horarios":
+        return f"🕘 Horarios de atención: {OPENING_HOURS}"
+    if intent == "cursos":
+        return f"📚 Idiomas disponibles: {', '.join(COURSES)}"
+    if intent == "precios":
+        return f"💵 Precios: {PRICES}"
+    if intent == "inscripciones":
+        return "📝 Para iniciar tu inscripción, por favor envía tu *CI*."
+    if intent == "ubicacion":
+        return f"📍 Dirección: {ADDRESS}\nMapa: {GOOGLE_MAPS_LINK}"
+    if intent == "contacto":
+        return f"☎️ Teléfonos: {CONTACT_PHONE}\n✉️ Email: {CONTACT_EMAIL}"
+    if intent == "pagos":
+        return f"💳 Métodos de pago: {PAYMENT_METHODS}"
+
+    # Default → usar IA
+    return generate_ai_answer(text)
+
+
 # ============================================================
 # 6.2) WEBHOOK - RECEPCIÓN DE MENSAJES (POST)
 # ============================================================
+
 @app.post("/webhook")
 async def receive_webhook(request: Request):
     """
     Recibe mensajes enviados desde la API de WhatsApp.
-    Procesa texto, botones y guarda leads en Google Sheets.
+    Procesa texto, botones, lista y envía respuesta.
     """
     data = await request.json()
+    print("📥 BODY RECIBIDO:", json.dumps(data, indent=2, ensure_ascii=False))
 
     # Validar estructura básica
     if "entry" not in data:
@@ -175,22 +249,27 @@ async def receive_webhook(request: Request):
 
     try:
         for entry in data["entry"]:
-            changes = entry.get("changes", [])
-            for change in changes:
+            for change in entry.get("changes", []):
                 value = change.get("value", {})
                 messages = value.get("messages", [])
 
                 for msg in messages:
+
+                    # Número del usuario
                     phone = msg["from"]
-                    text = msg.get("text", {}).get("body", "")
+
+                    # Texto
+                    text = msg.get("text", {}).get("body", "").strip()
 
                     print(f"📩 Mensaje de {phone}: {text}")
 
-                    # Detecta intención y genera respuesta
+                    # Detectar intención
                     intent = detect_intent_rules(text)
+
+                    # Generar respuesta
                     reply = handle_intention(intent, text, phone)
 
-                    # Envia mensaje
+                    # Enviar respuesta
                     send_whatsapp_message(phone, reply)
 
         return {"status": "processed"}
