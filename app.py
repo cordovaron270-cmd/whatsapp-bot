@@ -8,6 +8,39 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, f
 from sqlalchemy.orm import sessionmaker, declarative_base
 from datetime import datetime, timedelta
 from typing import List, Tuple
+from fastapi import FastAPI, Request, Response
+import os
+import json
+
+app = FastAPI()
+
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "mi-token-secreto-verificacion")
+
+# ================================
+# WEBHOOK - VERIFICACIÓN (GET)
+# ================================
+@app.get("/webhook")
+async def verify_webhook(request: Request):
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        return Response(content=challenge, media_type="text/plain")
+    return Response(content="Error de verificación", media_type="text/plain")
+
+# ================================
+# WEBHOOK - MENSAJES (POST)
+# ================================
+@app.post("/webhook")
+async def webhook_receiver(request: Request):
+    data = await request.json()
+
+    # Mostrar el mensaje recibido en los logs
+    print("📩 WEBHOOK RECIBIDO:")
+    print(json.dumps(data, indent=2, ensure_ascii=False))
+
+    return {"status": "ok"}
 
 # ===================== 1) .ENV Y VARIABLES BASE =====================
 load_dotenv()
