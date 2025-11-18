@@ -158,14 +158,47 @@ def send_whatsapp_text(to, message):
 #                 6) WEBHOOK - VERIFICACIÓN
 # ============================================================
 @app.get("/webhook", response_class=PlainTextResponse)
-async def verify_webhook(request: Request):
-    mode = request.query_params.get("hub.mode")
-    token = request.query_params.get("hub.verify_token")
-    challenge = request.query_params.get("hub.challenge")
+# ============================================================
+# 6.2) WEBHOOK - RECEPCIÓN DE MENSAJES (POST)
+# ============================================================
+@app.post("/webhook")
+async def receive_webhook(request: Request):
+    """
+    Recibe mensajes enviados desde la API de WhatsApp.
+    Procesa texto, botones y guarda leads en Google Sheets.
+    """
+    data = await request.json()
 
-    if mode == "subscribe" and token == VERIFY_TOKEN:
-        return PlainTextResponse(challenge or "")
-    raise HTTPException(status_code=403, detail="Token incorrecto")
+    # Validar estructura básica
+    if "entry" not in data:
+        return {"status": "ignored"}
+
+    try:
+        for entry in data["entry"]:
+            changes = entry.get("changes", [])
+            for change in changes:
+                value = change.get("value", {})
+                messages = value.get("messages", [])
+
+                for msg in messages:
+                    phone = msg["from"]
+                    text = msg.get("text", {}).get("body", "")
+
+                    print(f"📩 Mensaje de {phone}: {text}")
+
+                    # Detecta intención y genera respuesta
+                    intent = detect_intent_rules(text)
+                    reply = handle_intention(intent, text, phone)
+
+                    # Envia mensaje
+                    send_whatsapp_message(phone, reply)
+
+        return {"status": "processed"}
+
+    except Exception as e:
+        print("❌ Error procesando webhook:", e)
+        return {"status": "error", "detail": str(e)}
+
 # ============================================================
 #              7) IA – OpenAI ChatGPT
 # ============================================================
